@@ -15,8 +15,8 @@ const parallelTests = async (capability) => {
 
   try {
     // Mark the test as completed or failed
-    await page.goto('https://www.lambdatest.com/selenium-playground');
-  await page.getByLink('Simple Form Demo').click();
+  await page.goto('https://www.lambdatest.com/selenium-playground');
+  await page.getByText('Simple Form Demo').click();
   await expect(page).toHaveURL(/.*simple-form-demo.*/);
   const inputMessage = 'Welcome to LambdaTest';
   await page.fill('#user-message', inputMessage);
@@ -31,7 +31,7 @@ const parallelTests = async (capability) => {
   await slider.evaluate(slider => slider.value = 95);
   await slider.dispatchEvent('input');
   const rangeValue = await page.textContent("#rangeSuccess");
-  expect(rangeValue.trim()).toBe('95');
+   expect(rangeValue.trim()).toBe('95');
 
 
   await page.goto('https://www.lambdatest.com/selenium-playground');
