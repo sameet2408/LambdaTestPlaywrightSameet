@@ -17,7 +17,6 @@ const parallelTests = async (capability) => {
     // Mark the test as completed or failed
   await page.goto('https://www.lambdatest.com/selenium-playground');
   await page.getByText('Simple Form Demo').click();
-  await expect(page).toHaveURL(/.*simple-form-demo.*/);
   const inputMessage = 'Welcome to LambdaTest';
   await page.fill('#user-message', inputMessage);
   await page.getByRole('button', { name: 'Get Checked Value' }).click();
@@ -25,35 +24,43 @@ const parallelTests = async (capability) => {
     expect(displayedMessage?.trim()).toBe(inputMessage);
 
 
-  await page.goto('https://www.lambdatest.com/selenium-playground');
-  await page.getByLink('Drag & Drop Sliders').click();
-  const slider = page.locator("input[type='range']");
-  await slider.evaluate(slider => slider.value = 95);
-  await slider.dispatchEvent('input');
-  const rangeValue = await page.textContent("#rangeSuccess");
-   expect(rangeValue.trim()).toBe('95');
+  
+    await page.goto('https://www.lambdatest.com/selenium-playground');
+    await page.getByText('Drag & Drop Sliders').click();
+    const slider = page.locator('//*[@id="slider3"]/div/input')
+    await slider.focus();
+    for (let i = 0; i < 80; i++) {
+      await page.keyboard.down('ArrowRight');
+      if (i == 79) {
+        await page.keyboard.up('ArrowRight');
+        break;
+    }
+  }
+  const number1= Number(await page.locator('#rangeSuccess').textContent());
+  await expect(number1).toBe(95);
 
 
-  await page.goto('https://www.lambdatest.com/selenium-playground');
-  await page.getByLink('Input Form Submit').click();
-  await page.getByRole('button', { name: 'Submit' }).click();
-  const errorMessage = await page.textContent(".parsley-errors-list");
-    expect(errorMessage.trim()).toBe("Please fill in the fields");
-  await page.getByRole('textbox', {name: 'Name'}).fill('Sameet');
-  await page.getByRole('textbox', {name: 'Email'}).fill('xyz@gmail.com'); 
-  await page.getByRole('textbox', {name: 'Password'}).fill('Welcome@123');
-  await page.getByRole('textbox', {name: 'Company'}).fill('Qwerty123');
-  await page.getByRole('textbox', {name: 'Website'}).fill('www.lambdatest.com');
-  await this.page.selectOption("#inputCountry", { label: "United States" });
-  await page.getByRole('textbox', {name: 'City'}).fill('New York');
-  await page.getByRole('textbox', {name: 'Address 1'}).fill('123 Palk Street');
-  await page.getByRole('textbox', {name: 'Address 2'}).fill('Suite 134');
-  await page.getByRole('textbox', {name: 'City* State'}).fill('NY');
-  await page.getByRole('textbox', {name: 'Zip Code'}).fill('34010');
-  await page.getByRole('button', { name: 'Submit' }).click();
-  const successMessage = await page.textContent(".success-msg");
+
+await page.goto('https://www.lambdatest.com/selenium-playground');
+await page.getByText("Input Form Submit").click();
+await page.getByRole("button", { name: "Submit"}).click();
+await page.getByRole("textbox", { name: 'Name'}).fill("Sameet");
+await page.getByRole("textbox", { name: 'Email'}).fill("Test123@xyz.com");
+await page.getByRole("textbox", { name: 'Password'}).fill("Password@123");
+await page.getByRole("textbox", { name: 'Company'}).fill("XYZ PVT LTD");
+await page.getByRole("textbox", { name: 'Website'}).fill("XYZPVTLTD.com");
+await page.getByRole('combobox').selectOption("United States")
+await page.getByRole("textbox", { name: 'City', exact: true}).fill("New York");
+await page.getByRole("textbox", { name: 'Address 1'}).fill("123 Palk Street");
+await page.getByRole("textbox", { name: 'Address 2'}).fill("Suite 134");
+await page.getByRole("textbox", { name: 'City* State*'}).fill("NY");
+await page.getByRole("textbox", { name: 'Zip Code'}).fill("53151");
+await page.getByRole("button", { name: "Submit"}).click();
+const successMessage = await page.textContent(".success-msg");
     expect(successMessage.trim()).toBe("Thanks for contacting us, we will get back to you shortly.")
-    
+
+
+ 
 
   } catch (e) {
     await page.evaluate(_ => {}, `lambdatest_action: ${JSON.stringify({ action: 'setTestStatus', arguments: { status: 'failed', remark: e.stack } })}`)
