@@ -1,0 +1,6 @@
+tasks:
+ - command: |
+    export LT_USERNAME='sameetsamantaray24'
+    export LT_ACCESS_KEY='LT_mT9NNgEf95US4fil0zXNqblIDpcXVmcBru7hGgrqsGPjMuy'
+    npm install
+    node playwright-parallel.js
