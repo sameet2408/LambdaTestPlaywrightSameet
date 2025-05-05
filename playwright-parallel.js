@@ -1,3 +1,5 @@
+import { test, expect } from '@playwright/test';
+
 const { chromium } = require('playwright')
 const {expect} = require("expect");
 const cp = require('child_process');
@@ -12,56 +14,89 @@ const parallelTests = async (capability) => {
 
   const page = await browser.newPage()
 
-
   try {
+    
+    /* 1. OpenLambdaTest’sSeleniumPlaygroundfrom
+     https://www.lambdatest.com/selenium-playground
+     2. Click“SimpleFormDemo”.
+     3. ValidatethattheURLcontains“simple-form-demo”.
+     4. Createavariableforastringvaluee.g.:“WelcometoLambdaTest”.
+     5. Usethisvariabletoentervaluesinthe“EnterMessage”textbox.
+     6. Click“GetCheckedValue”.
+     7. Validatewhetherthesametextmessageisdisplayedintheright-hand
+     panelunderthe“YourMessage:”section. */
+    
+    test('Test Scenario 1', async ({ page }) => {
+      await page.goto('https://www.lambdatest.com/selenium-playground');
+      await page.getByRole('link',{name:"Simple Form Demo"}).click();
+      await expect(page).toHaveURL(/simple-form-demo/);
+      const message = 'Welcome to LambdaTest';
+      await page.getByPlaceholder('Please enter your Message').fill(message);
+      await page.getByRole('button', {name:"Get Checked Value"}).click();
+      await expect(page.locator('#message')).toContainText(message);
+    
+    });
+    
+    /*1. Open the https://www.lambdatest.com/selenium-playground page and
+     click “Drag & Drop Sliders”.
+     2. Select the slider “Default value 15” and drag the bar to make it 95 by
+     validating whether the range value shows 95.*/ 
+    
+    test('Test Scenario 2', async ({ page }) => {
+        await page.goto('https://www.lambdatest.com/selenium-playground');
+    
+    await page.getByText("Drag & Drop Sliders").click();
+    const targetValue = "95";
+    const slider15 = page.getByRole('slider').nth(2);
+    await slider15.focus();
+    let exactValue = await page.locator('#rangeSuccess').textContent();
+    while (exactValue !=='95') {
+      await page.keyboard.press('ArrowRight');
+           exactValue = await page.locator('#rangeSuccess').textContent(); 
+        }
+        await expect(page.locator('#rangeSuccess')).toHaveText('95'); 
+    });
+    
+    /*Test Scenario 3:
+     1. Openthehttps://www.lambdatest.com/selenium-playground page and
+     click “Input Form Submit”.
+     2. Click “Submit” without filling in any information in the form.
+     3. Assert “Please fill in the fields” error message.
+     4. Fill in Name, Email, and other fields.
+     5. Fromthe Country drop-down, select “United States” using the text
+     property.
+     6. Fill in all fields and click “Submit”.
+     7. Oncesubmitted, validate the success message “Thanks for contacting
+     us, we will get back to you shortly.” on the screen*/
+    
+    
+    test('Test Scenario 3', async ({ page }) => {
+      await page.goto('https://www.lambdatest.com/selenium-playground');
+    
+        await page.getByRole('link',{name:"Input Form Submit"}).click();
+        await page.getByRole('button',{name:"Submit"}).click();
+    
+        // Assert “Please fill in the fields” error message
+         // Not able to find the locator
+    
+        await page.getByRole ('textbox',{name:"Name"}).fill('Astha');
+        await page.getByRole ('textbox',{name:"Email"}).fill('Astha@gmail.com');
+        await page.getByRole ('textbox',{name:"Password"}).fill('Password');
+        await page.getByRole ('textbox',{name:"Company"}).fill('Company');
+        await page.getByRole ('textbox',{name:"Website"}).fill('www.website.com');
+        await page.getByRole('combobox').selectOption('United States');
+        await page.getByRole ('textbox',{name:"City"}).first().fill('City');
+        await page.getByRole ('textbox',{name:"Address 1"}).fill('Test Address 1');
+        await page.getByRole ('textbox',{name:"Address 2"}).fill('Test Address 2');
+        await page.getByRole ('textbox',{name:"City* State*"}).fill('Test State');
+        await page.getByRole ('textbox',{name:"Zip Code"}).fill('123456'); 
+        await page.getByRole('button',{name:"Submit"}).click();
+        await expect(page.getByText('Thanks for contacting us, we will get back to you shortly.')).toBeVisible();
+    });
+    
     // Mark the test as completed or failed
-  await page.goto('https://www.lambdatest.com/selenium-playground');
-  await page.getByText('Simple Form Demo').click();
-  const inputMessage = 'Welcome to LambdaTest';
-  await page.fill('#user-message', inputMessage);
-  await page.getByRole('button', { name: 'Get Checked Value' }).click();
-  const displayedMessage = await page.textContent('#message');
-    expect(displayedMessage?.trim()).toBe(inputMessage);
-
-
-  
-    await page.goto('https://www.lambdatest.com/selenium-playground');
-    await page.getByText('Drag & Drop Sliders').click();
-    const slider = page.locator('//*[@id="slider3"]/div/input')
-    await slider.focus();
-    for (let i = 0; i < 80; i++) {
-      await page.keyboard.down('ArrowRight');
-      if (i == 79) {
-        await page.keyboard.up('ArrowRight');
-        break;
-    }
-  }
-  const number1= Number(await page.locator('#rangeSuccess').textContent());
-  await expect(number1).toBe(95);
-
-
-
-await page.goto('https://www.lambdatest.com/selenium-playground');
-await page.getByText("Input Form Submit").click();
-await page.getByRole("button", { name: "Submit"}).click();
-await page.getByRole("textbox", { name: 'Name'}).fill("Sameet");
-await page.getByRole("textbox", { name: 'Email'}).fill("Test123@xyz.com");
-await page.getByRole("textbox", { name: 'Password'}).fill("Password@123");
-await page.getByRole("textbox", { name: 'Company'}).fill("XYZ PVT LTD");
-await page.getByRole("textbox", { name: 'Website'}).fill("XYZPVTLTD.com");
-await page.getByRole('combobox').selectOption("United States")
-await page.getByRole("textbox", { name: 'City', exact: true}).fill("New York");
-await page.getByRole("textbox", { name: 'Address 1'}).fill("123 Palk Street");
-await page.getByRole("textbox", { name: 'Address 2'}).fill("Suite 134");
-await page.getByRole("textbox", { name: 'City* State*'}).fill("NY");
-await page.getByRole("textbox", { name: 'Zip Code'}).fill("53151");
-await page.getByRole("button", { name: "Submit"}).click();
-const successMessage = await page.textContent(".success-msg");
-    expect(successMessage.trim()).toBe("Thanks for contacting us, we will get back to you shortly.")
-
-
- 
-
+    await page.evaluate(_ => {}, `lambdatest_action: ${JSON.stringify({ action: 'setTestStatus', arguments: { status: 'passed', remark: 'Title matched' } })}`)
+    await teardown(page, browser)
   } catch (e) {
     await page.evaluate(_ => {}, `lambdatest_action: ${JSON.stringify({ action: 'setTestStatus', arguments: { status: 'failed', remark: e.stack } })}`)
     await teardown(page, browser)
@@ -96,9 +131,9 @@ const capabilities = [
     'browserName': 'pw-firefox',
     'browserVersion': 'latest',
     'LT:Options': {
-      'platform': 'macOS Catalina',
+      'platform': 'MacOS Catalina',
       'build': 'Playwright With Parallel Build',
-      'name': 'Playwright Sample Test on macOS - firefox',
+      'name': 'Playwright Sample Test on Windows 8 - MicrosoftEdge',
       'user': process.env.LT_USERNAME,
       'accessKey': process.env.LT_ACCESS_KEY,
       'network': true,
